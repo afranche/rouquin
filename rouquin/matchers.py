@@ -1,0 +1,2 @@
+class RegexMatcher(str):
+    pass

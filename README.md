@@ -1,106 +1,94 @@
 # Rouquin
 
-Small POC of a Python's sort-of Pattern Matching.
-
-## Word of caution
-
-This is an alpha project. The module will have a lot of interface changes
-and internal changes as well. If you fell on this project by accident you
-may star the project and come back later. If you're one of my coworkers,
-please remind me that I left my water bottle in the fridge... :detective: 
+Small project of a Python's sort-of Pattern Matching.
 
 ## Why
 
 While travelling through Github to search for pattern matching in Python
 I saw [Pampy](https://github.com/santinic/pampy). I found it was awesome
-and really well done and then I realized: "Hey, my code looks ugly using
-[Black](https://github.com/psf/black) now. How comes ?"
+and really well done but my code sadly got disappointing since I began
+using Black at work.
 
-So I decided to make this small project.
+So I decided to make this small project, I could have forked pampy but
+I prefer to make my own project for learning reasons..
 
-## Why would you need pattern matching in a Python project ?
-
-It may be a personal point of view but there are cases at my work where
-I could find some `if..elif..else` conditional structures that where
-heavy. I figured out that, instead of having to resort to this. We could
-use Pattern Matching, even more with the upcoming [Walrus operator](https://lwn.net/Articles/793818/).
-
-It saves place.
+**tl;dr, use [Pampy](https://github.com/santinic/pampy) if you do not use Black on your project**.
 
 ## Examples
 
-### I'd like to simply match against fixed values
+### Match a single value
+
+```python
+label = "label_4"
+
+if label == "label_1":
+    pass # do this...
+elif label == "label_2":
+    pass # do this...
+elif label == "label_2":
+    pass # do this...
+else:
+    pass # do other stuff...
+```
+
+vs.
 
 ```python
 from rouquin import Match, ANY as _
 
-age = input("What's your favourite number between 1, 3 and 21 ? ")
+label = "label_4"
 
-Match(age,
-      (1, lambda: print("That's quite a .... singular number.")),
-      (3, lambda: print("Jamais deux sans trois, hon hon.")),
-      (21, lambda: print("I used to have that age... Once.")),
-      (_, lambda: print("Ehm... I asked for something else but whatever.")))()
+Match(label,
+      ("label_1", lambda: print("Do this")),
+      ("label_2", lambda: print("Do this")),
+      ("label_3", lambda: print("Do this")),
+      (_, lambda: print("Do other stuff...")),)() # --> "Do other stuff"
 ```
 
-### Oooooh, fear the regex...
-
+### Match on multiple values
 
 ```python
-from rouquin import Match, RegexMatch, ANY as _
-pin = input("Please enter a valid 4-digits PIN Code: ")
+import random
 
-Match(pin,
-      (RegexMatch(r"\d{4}"), lambda: print("Nice PIN friend.")),
-      (_, lambda: print("Sadly enough, it seems your PIN is invalid.")))()
+danger_level = random.randint(1, 5)
+first_name = input("Glory to Arstotzka, what's your first name ?\n")
+last_name = input("Good, good... Last name ?\n")
+
+if danger_level >= 4 or (
+    first_name == "Jorji"
+    and last_name == "Costava"
+    ) or (
+    first_name == "Vince"
+    and last_name == "Lestrade"
+    and danger_level > 2
+    ):
+    can_pass = False
+else:
+    can_pass = True
+```
+
+vs.
+
+```python
+import random
+from rouquin import Match, ANY as _
+
+danger_level = random.randint(1, 5)
+first_name = input("Glory to Arstotzka, what's your first name ?\n")
+last_name = input("Good, good... Last name ?\n")
+
+can_pass = Match((danger_level, first_name, last_name),
+                 ((lambda d: d >= 4, _, _), False),
+                 ((_, "Jorji", "Costava"), False),
+                 ((lambda d: d > 2, "Vince", "Lestrade"), False),
+                 (_, True)
+                )  
 ```
 
 ## Roadmap
 
-#### Allow conditional values to be put
-- [ ]
+- Allow matching multiple values at the same time :heavy_check_mark:
 
-```python
-from rouquin import Match
+- Allow conditional functions :timer_clock:
 
-age = input("What's your favourite number between 1, 3 and 21 ? ")
-
-Match(age,
-      (lambda v: v <= 12, lambda: print("WHEW KID, GROW UP A LITTLE!")),
-      (lambda v: v >= 50, lambda: print("WHEW LAD, WHAT A GROWN UP MAN WE'VE GOT HERE")),
-      (lambda v: v >= 13, lambda: print("'La fleur de l'âge'...")))  # Match will short-circuit if the second pattern matches.
-```
-
-#### Allow matching multiple values at the same time
-
-- [ ] 
-
-```python
-from rouquin import Match, RegexMatch, ANY as _
-
-citizens = {
-    "Dordon Fightman": "Scientist",
-    "Barnyu Calground": "Security Guard",
-    "owo": "owo hewwooooo~",
-}
-
-the_wanted_citizen = ("The Fake Dordon", "Scientist")
-
-Match(citizens,
-      (_, "Scientist", lambda: print("I can guess you're the famous Dordon, last star of the Hokuto Mesa constellation..")),
-      (RegexMatch(r"^Barnyu"), _, lambda: print("Not sure about this but I think I owe you a beer man..")),
-      ("owo", _, lambda: print("ewe...")),
-      (_, lambda: print("Congratulations, I don't know you...")))
-```
-
-#### Re-evaluate design to provide a much cleaner and beautiful module
-
-- [ ] 
-
-#### Backport for Python 2.7
-
-- [ ] 
-
-#### Eventually ship the project, idk...
-
-- [ ] 
+- Re-evaluate design to provide a much cleaner and beautiful module :negative_squared_cross_mark:
