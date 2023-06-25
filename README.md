@@ -1,5 +1,11 @@
 # Rouquin
 
+## ⚠️ Archived Project!
+
+You should be using Python 3.10's pattern matching feature instead of this project :)
+
+---
+
 Small project of a Python's sort-of Pattern Matching.
 
 ## Why
